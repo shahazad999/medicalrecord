@@ -59,6 +59,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.addMedicalRecord(APIstub, args)
 	} else if function == "updateMedicalRecord" {
 		return s.updateMedicalRecord(APIstub, args)
+	} else if function == "queryAllMedicalRecords" {
+		return s.queryAllMedicalRecords(APIstub)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
