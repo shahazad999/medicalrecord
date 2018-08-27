@@ -10,6 +10,6 @@ func TestaddMedicalRecord (t *testing.T) {
 	attributes := make(map[string][]byte)
 	stub :=shim.NewCustomMockStub("mockStub", new(SampleChaincode), attributes)
 	if stub == nil{
-		t.Fatelf("MockSTub creation failed")
+		t.Fatelf("MockStub creation failed")
 	}
 }
