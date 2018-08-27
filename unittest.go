@@ -1,5 +1,15 @@
 package shim
 import (
-	 "github.com/golang/protobuf/ptypes/timestamp"
-	 "github.com/hyperledger/fabric/core/chaincode/shim/crypto/attr" 
+	"encoding/json"
+	"fmt"
+	"testing"
+	"github.com/hyperledger/fabric/core/chaincode/shim" 
 )
+
+func TestaddMedicalRecord (t *testing.T) {
+	attributes := make(map[string][]byte)
+	stub :=shim.NewCustomMockStub("mockStub", new(SampleChaincode), attributes)
+	if stub == nil{
+		t.Fatelf("MockSTub creation failed")
+	}
+}
