@@ -23,7 +23,7 @@ type MedicalRecord struct {
 }
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
-
+	//populate the genisis block with the 5 record of mediical data
 	medicalrecords := []MedicalRecord{
 		MedicalRecord{ID: "101", Name: "shazu", Weight: "65", Age: "22"},
 		MedicalRecord{ID: "102", Name: "rakhi", Weight: "70", Age: "24"},
@@ -52,7 +52,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
-	// Route to the appropriate handler function to interact with the ledger appropriately
+	// invoke the fuction by verifiin the function name
 	if function == "queryMedicalRecord" {
 		return s.queryMedicalRecord(APIstub, args)
 	} else if function == "addMedicalRecord" {
@@ -66,6 +66,7 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
+//retrive all medical records from initledger
 func (s *SmartContract) queryAllMedicalRecords(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "MedicalRecord0"
