@@ -61,6 +61,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.updateMedicalRecord(APIstub, args)
 	} else if function == "queryAllMedicalRecords" {
 		return s.queryAllMedicalRecords(APIstub)
+	} else if function == "initLedger" {
+		return s.initLedger(APIstub)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -120,8 +122,8 @@ func (s *SmartContract) queryMedicalRecord(APIstub shim.ChaincodeStubInterface, 
 
 func (s *SmartContract) addMedicalRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 5")
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	var medicalrecord = MedicalRecord{ID: args[1], Name: args[2], Weight: args[3], Age: args[4]}

@@ -9,6 +9,8 @@ import (
 	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
+var medicalRecord3 = "{\"ID\":\"104\",\"Name\":\"varun\",\"Weight\":\"56\",\"Age\":\"32\"}"
+
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
 	res := stub.MockInit("1", args)
 	if res.Status != shim.OK {
@@ -25,14 +27,30 @@ func checkInvoke(t *testing.T, stub *shim.MockStub, args [][]byte) {
 	}
 }
 
-func checkState(t *testing.T, stub *shim.MockStub, medicalrecordAsBytes string, id string, name string, weight string, age string) {
-	bytes := stub.State[medicalrecordAsBytes]
+func checkState(t *testing.T, stub *shim.MockStub, id string, name string, weight string, age string) {
+	bytes := stub.State[id]
 	if bytes == nil {
-		fmt.Println("State", medicalrecordAsBytes, "failed to get value")
+		fmt.Println("State", id, "failed to get value")
 		t.FailNow()
 	}
-	if string(bytes) != id {
-		fmt.Println("State id", medicalrecordAsBytes, "was not", id, "as expected")
+	if string(bytes) != name {
+		fmt.Println("State id", id, "was not", name, "as expected")
+		t.FailNow()
+	}
+}
+
+func checkQuery(t *testing.T, stub *shim.MockStub, id string, name string) {
+	res := stub.MockInvoke("1", [][]byte{[]byte("queryMedicalRecord"), []byte(name)})
+	if res.Status != shim.OK {
+		fmt.Println("Query", id, "failed", string(res.Message))
+		t.FailNow()
+	}
+	if res.Payload == nil {
+		fmt.Println("Query", id, "failed to get value")
+		t.FailNow()
+	}
+	if string(res.Payload) != name {
+		fmt.Println("Query value", id, "was not", name, "as expected")
 		t.FailNow()
 	}
 }
@@ -46,7 +64,9 @@ func TestSmartContract_queryMedicalRecord(t *testing.T) {
 	{
 		scc := new(SmartContract)
 		stub := shim.NewMockStub("medicalrecord", scc)
-		checkState(t, stub, "MedicalRecord1", "102", "rakhi", "70", "24")
+		checkInvoke(t, stub, [][]byte{[]byte("initLedger")})
+		checkQuery(t, stub, [][]byte{[]byte("MedicalRecord3"), []byte("103"), []byte("varun"), []byte("56"), []byte("32")})
+		checkState(t, stub, "104", "varun", "56", "32")
 		// TODO: Add test cases.
 	}
 
