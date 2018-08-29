@@ -23,7 +23,7 @@ type MedicalRecord struct {
 }
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
-	//Invoking initLedger will add these Medical recors to blockchain
+	//Invoking initLedger will add these Medical records to blockchain else we can add records indipendently by invoking addMedicalRecord
 	medicalrecords := []MedicalRecord{
 		MedicalRecord{ID: "101", Name: "shazu", Weight: "65", Age: "22"},
 		MedicalRecord{ID: "102", Name: "rakhi", Weight: "70", Age: "24"},
@@ -52,7 +52,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 	// Retrieve the requested Smart Contract function and arguments
 	function, args := APIstub.GetFunctionAndParameters()
-	// invoke the fuction by verifiin the function name
+	// invoke the fuction by verifying the function name
+
 	if function == "queryMedicalRecord" {
 		return s.queryMedicalRecord(APIstub, args)
 	} else if function == "addMedicalRecord" {
@@ -94,12 +95,13 @@ func (s *SmartContract) queryAllMedicalRecords(APIstub shim.ChaincodeStubInterfa
 		if bArrayMemberAlreadyWritten == true {
 			buffer.WriteString(",")
 		}
-		buffer.WriteString("{\"Key\":")
+
+		buffer.WriteString("{\"Key\":") //this sperates key from medicalrecord content
 		buffer.WriteString("\"")
 		buffer.WriteString(queryResponse.Key)
 		buffer.WriteString("\"")
 
-		buffer.WriteString(", \"Record\":")
+		buffer.WriteString(", \"Record\":") //Medical Record is printed next to its key
 		// Record is a JSON object, so we write as-is
 		buffer.WriteString(string(queryResponse.Value))
 		buffer.WriteString("}")
@@ -123,7 +125,7 @@ func (s *SmartContract) queryMedicalRecord(APIstub shim.ChaincodeStubInterface, 
 func (s *SmartContract) addMedicalRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
 
 	var medicalrecord = MedicalRecord{ID: args[1], Name: args[2], Weight: args[3], Age: args[4]}
@@ -137,14 +139,23 @@ func (s *SmartContract) addMedicalRecord(APIstub shim.ChaincodeStubInterface, ar
 func (s *SmartContract) updateMedicalRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
+		return shim.Error("Incorrect number of arguments. Expecting 3")
 	}
-
+	//retrive medicalrecord from args[0]
 	medicalrecordAsBytes, _ := APIstub.GetState(args[0])
 	medicalrecord := MedicalRecord{}
 
 	json.Unmarshal(medicalrecordAsBytes, &medicalrecord)
-	medicalrecord.Weight = args[1]
+	//check args[2] to identify what to change
+	if args[2] == "weight" {
+		medicalrecord.Weight = args[1]
+	} else if args[2] == "age" {
+		medicalrecord.Age = args[1]
+	} else if args[2] == "name" {
+		medicalrecord.Name = args[1]
+	} else {
+		return shim.Error("Incorrect last argument expecting weight or age or name")
+	}
 
 	medicalrecordAsBytes, _ = json.Marshal(medicalrecord)
 	APIstub.PutState(args[0], medicalrecordAsBytes)
