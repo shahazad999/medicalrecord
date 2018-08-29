@@ -23,7 +23,7 @@ type MedicalRecord struct {
 }
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
-	//populate the genisis block with the 5 record of mediical data
+	//Invoking initLedger will add these Medical recors to blockchain
 	medicalrecords := []MedicalRecord{
 		MedicalRecord{ID: "101", Name: "shazu", Weight: "65", Age: "22"},
 		MedicalRecord{ID: "102", Name: "rakhi", Weight: "70", Age: "24"},
@@ -122,7 +122,7 @@ func (s *SmartContract) queryMedicalRecord(APIstub shim.ChaincodeStubInterface, 
 
 func (s *SmartContract) addMedicalRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 4 {
+	if len(args) != 5 {
 		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 

@@ -10,6 +10,9 @@ import (
 )
 
 var medicalRecord3 = "{\"ID\":\"104\",\"Name\":\"varun\",\"Weight\":\"56\",\"Age\":\"32\"}"
+var medicalRecord2 = "{\"id\":\"103\",\"name\":\"akhil\",\"weight\":\"54\",\"age\":\"17\"}"
+var newmedicalrecord = "{\"ID\":\"104\",\"Name\":\"varun\",\"Weight\":\"56\",\"Age\":\"32\"}"
+var addrecord = "{\"MedicalRecord5\",\"110\",\"rajesh\",\"55\",\"65\"}"
 
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
 	res := stub.MockInit("1", args)
@@ -27,30 +30,37 @@ func checkInvoke(t *testing.T, stub *shim.MockStub, args [][]byte) {
 	}
 }
 
-func checkState(t *testing.T, stub *shim.MockStub, id string, name string, weight string, age string) {
-	bytes := stub.State[id]
-	if bytes == nil {
-		fmt.Println("State", id, "failed to get value")
+func checkInvoke2(t *testing.T, stub *shim.MockStub, args [][]byte, response []byte) {
+	res := stub.MockInvoke("1", args)
+	if res.Status != shim.OK {
+		fmt.Println("Invoke", args, "failed", string(res.Message))
 		t.FailNow()
 	}
-	if string(bytes) != name {
-		fmt.Println("State id", id, "was not", name, "as expected")
-		t.FailNow()
+
+	if response != nil {
+		if res.Payload == nil {
+			fmt.Printf("Invoke returned nil, expected %s", string(response))
+			t.FailNow()
+		}
+		if string(res.Payload) != string(response) {
+			fmt.Printf("Invoke returned %s, expected %s", string(res.Payload), string(response))
+			t.FailNow()
+		}
 	}
 }
 
-func checkQuery(t *testing.T, stub *shim.MockStub, id string, name string) {
-	res := stub.MockInvoke("1", [][]byte{[]byte("queryMedicalRecord"), []byte(name)})
+func checkQuery(t *testing.T, stub *shim.MockStub, Key string, value string) {
+	res := stub.MockInvoke("1", [][]byte{[]byte("queryMedicalRecord"), []byte(Key)})
 	if res.Status != shim.OK {
-		fmt.Println("Query", id, "failed", string(res.Message))
+		fmt.Println("Query", Key, "failed", string(res.Message))
 		t.FailNow()
 	}
 	if res.Payload == nil {
-		fmt.Println("Query", id, "failed to get value")
+		fmt.Println("Query", Key, "failed to get value")
 		t.FailNow()
 	}
-	if string(res.Payload) != name {
-		fmt.Println("Query value", id, "was not", name, "as expected")
+	if string(res.Payload) != value {
+		fmt.Println("Query value", Key, "was not", value, "as expected", string(res.Payload))
 		t.FailNow()
 	}
 }
@@ -65,8 +75,8 @@ func TestSmartContract_queryMedicalRecord(t *testing.T) {
 		scc := new(SmartContract)
 		stub := shim.NewMockStub("medicalrecord", scc)
 		checkInvoke(t, stub, [][]byte{[]byte("initLedger")})
-		checkQuery(t, stub, [][]byte{[]byte("MedicalRecord3"), []byte("103"), []byte("varun"), []byte("56"), []byte("32")})
-		checkState(t, stub, "104", "varun", "56", "32")
+
+		checkQuery(t, stub, "MedicalRecord2", "{\"id\":\"103\",\"name\":\"akhil\",\"weight\":\"54\",\"age\":\"17\"}")
 		// TODO: Add test cases.
 	}
 
@@ -83,11 +93,7 @@ func TestSmartContract_addMedicalRecord(t *testing.T) {
 		stub := shim.NewMockStub("medicalrecord", scc)
 
 		//add medicalrecords
-		checkInvoke(t, stub, [][]byte{[]byte("addMedicalRecord"), []byte("211"), []byte("Ragu"), []byte("30"), []byte("55")})
-		checkInvoke(t, stub, [][]byte{[]byte("addMedicalRecord"), []byte("221"), []byte("lambu"), []byte("40"), []byte("78")})
-		//check weather the record have been updated
-		checkInvoke(t, stub, [][]byte{[]byte("queryMedicalRecord"), []byte("MedicalRecord6"), []byte("211"), []byte("Ragu"), []byte("30"), []byte("55")})
-		checkInvoke(t, stub, [][]byte{[]byte("queryMedicalRecord"), []byte("MedicalRecord7"), []byte("221"), []byte("lambu"), []byte("40"), []byte("78")})
+		checkInvoke(t, stub, [][]byte{[]byte("addMedicalRecord"), []byte("{\"MedicalRecord5\",\"110\",\"rajesh\",\"55\",\"65\"}")})
 
 		// TODO: Add test cases.
 	}
