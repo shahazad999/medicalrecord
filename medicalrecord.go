@@ -23,7 +23,7 @@ type MedicalRecord struct {
 }
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
-	//Invoking initLedger will add these Medical records to blockchain else we can add records indipendently by invoking addMedicalRecord
+	//Invoking initLedger will add these Medical records to blockchain or else we can add records indipendently by invoking addMedicalRecord
 	medicalrecords := []MedicalRecord{
 		MedicalRecord{ID: "101", Name: "shazu", Weight: "65", Age: "22"},
 		MedicalRecord{ID: "102", Name: "rakhi", Weight: "70", Age: "24"},
@@ -32,7 +32,7 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 		MedicalRecord{ID: "105", Name: "anula", Weight: "90", Age: "23"},
 	}
 	j := 0
-
+	// A key value is generated for each record starting from MedicalRecord0
 	for j < len(medicalrecords) {
 		fmt.Println("j is ", j)
 		medicalrecordAsBytes, _ := json.Marshal(medicalrecords[j])
@@ -96,7 +96,7 @@ func (s *SmartContract) queryAllMedicalRecords(APIstub shim.ChaincodeStubInterfa
 			buffer.WriteString(",")
 		}
 
-		buffer.WriteString("{\"Key\":") //this sperates key from medicalrecord content
+		buffer.WriteString("{\"Key\":") //this sperates key from medicalrecord content key value is used to retrive any medical record
 		buffer.WriteString("\"")
 		buffer.WriteString(queryResponse.Key)
 		buffer.WriteString("\"")
